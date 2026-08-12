@@ -1,0 +1,284 @@
+/*
+ * tokens.css — RankRoom identity ("SERP native", 2026-08-12).
+ *
+ * Niche = Marketing & SEO. Grounded in the SEO analyst's screen: the SERP
+ * result row, the search box, the electric-teal analytics dashboard, the
+ * blinking query cursor. Deliberately NOT the sister oriz-blog "Signal Press"
+ * amber/serif/newspaper look, and not a recolor of it.
+ *
+ *   Deep navy-slate screen · electric mint signal (rank-up) · hot magenta
+ *   risk signal (rank-drop) · Space Grotesk display · IBM Plex Sans body ·
+ *   IBM Plex Mono metrics.
+ *
+ * Every --color-* alias is preserved so chrome/legal/Footer components (which
+ * consume the shell token names) compile unchanged. Theme modes:
+ *   :root                              → dark dashboard (default)
+ *   @media (prefers-color-scheme:light)→ light, UNLESS [data-theme="dark"]
+ *   [data-theme="light"]               → light, always (overrides system)
+ *   [data-theme="dark"]                → dark, always
+ *   [data-theme="sepia"]               → warm light variant
+ *   [data-theme="hc"]                  → pure black/white high contrast
+ */
+:root {
+  color-scheme: dark;
+
+  /* ── dark dashboard palette ────────────────────────────────────────────
+     Deep navy-slate screen surface + elevated panels + electric-mint signal.
+     Cool near-white ink. All --color-* aliases below inherit automatically. */
+  --brand: #16e7a6; /* electric mint — rank-up, links, active, primary */
+  --brand-soft: #0d2a24; /* deep mint tint — hover, chips (dark) */
+  --risk: #ff3d8b; /* hot magenta — rank-drop / risk / secondary signal */
+  --success: #16e7a6;
+  --danger-color: #ff3d8b;
+
+  --paper: #0a1626; /* deep navy-slate screen (page bg) */
+  --paper-2: #101f33; /* elevated panel / surface */
+  --surface: var(--paper-2);
+  --ink: #e6eef7; /* cool near-white text */
+  --ink-mute: #8ba0bd; /* secondary (cool slate) */
+  --rule: #1d3049; /* subtle panel hairlines */
+  --rule-strong: #2a4463; /* heavier masthead rule */
+
+  /* SERP-link blue — the "search result title" colour. Distinct from --brand
+     (which is the analytics mint). Used only for SERP-styled result titles. */
+  --serp-link: #6db3ff;
+  --serp-url: #16e7a6; /* mint breadcrumb — the green URL line */
+
+  /* canonical accent — electric mint. Everything routes through --accent.
+     --cobalt kept ONLY as a back-compat alias → --accent. */
+  --accent: var(--brand);
+  --accent-soft: var(--brand-soft);
+  --cobalt: var(--accent);
+  --brand-tint: var(--brand-soft);
+  --sage: var(--success);
+  --vermilion: var(--risk);
+  --highlighter: var(--brand);
+
+  /* content-vertical marker colours. Thin rules / kicker ticks only, never the
+     page accent. SEO · Content · Email · Analytics · Growth. */
+  --v-dev: #16e7a6; /* SEO */
+  --v-finance: #ffb020; /* Analytics (amber metric) */
+  --v-culture: #ff3d8b; /* Content */
+  --v-health: #6db3ff; /* Email */
+  --v-personal: #8ba0bd; /* Growth / general */
+
+  /* semantic passthroughs */
+  --color-bg: var(--paper);
+  --color-fg: var(--ink);
+  --color-accent: var(--brand);
+  --color-accent-fg: #071019;
+  --color-sage: var(--success);
+  --color-muted: var(--ink-mute);
+  --color-border: var(--rule);
+  --color-bg-soft: var(--paper-2);
+  --color-bg-muted: var(--paper-2);
+  --color-prose: var(--ink);
+  --color-fg-muted: var(--ink-mute);
+  --color-fg-soft: var(--ink-mute);
+
+  /* color alias layer (chrome components read these) */
+  --color-brand-indigo: var(--brand); /* name kept for compatibility */
+  --color-brand-indigo-soft: var(--brand-soft);
+  --color-brand-success: var(--success);
+  --color-brand-danger: var(--danger-color);
+  --color-neutral-0: #0a1626;
+  --color-neutral-50: #101f33;
+  --color-neutral-100: #142743;
+  --color-neutral-200: #1d3049;
+  --color-neutral-300: #2a4463;
+  --color-neutral-500: #8ba0bd;
+  --color-neutral-700: #b9c8dc;
+  --color-neutral-900: #e6eef7;
+  --color-neutral-1000: #ffffff;
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-ink: var(--ink);
+  --color-ink-mute: var(--ink-mute);
+  --color-rule: var(--rule);
+
+  /* ── type ───────────────────────────────────────────────────────────
+     Font families declared ONCE in global.css @theme (Tailwind emits the
+     --font-* custom properties from there). Not duplicated here. */
+
+  --text-2xs: 10px;
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-md: 17px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+  --text-3xl: 48px;
+
+  /* spacing — 8 steps */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* motion — 3 durations + 3 easings */
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 360ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* breakpoints */
+  --bp-sm: 480px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1440px;
+
+  /* radii + containers — rounded, product-like (not the base blog's 0-radius) */
+  --radius-card: 12px;
+  --radius-button: 8px;
+  --container-page: 1100px;
+}
+
+/* ── LIGHT — system preference, unless user forced dark ─────────────────
+   A cool analytics "day mode": near-white screen, ink navy, same mint signal. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    color-scheme: light;
+    --brand: #059669; /* mint reads darker on white for contrast */
+    --brand-soft: #d9f7ec;
+    --risk: #db2777;
+    --success: #059669;
+    --danger-color: #db2777;
+    --paper: #f5f8fb;
+    --paper-2: #ffffff;
+    --ink: #0a1626;
+    --ink-mute: #566579;
+    --rule: #dbe4ef;
+    --rule-strong: #c3d1e2;
+    --serp-link: #1a56db;
+    --serp-url: #059669;
+    --v-dev: #059669;
+    --v-finance: #b45309;
+    --v-culture: #db2777;
+    --v-health: #1a56db;
+    --v-personal: #566579;
+    --color-accent-fg: #ffffff;
+    --color-neutral-50: #ffffff;
+    --color-neutral-100: #eef3f9;
+    --color-neutral-200: #dbe4ef;
+    --color-neutral-300: #c3d1e2;
+    --color-neutral-500: #566579;
+    --color-neutral-700: #33465e;
+    --color-neutral-900: #0a1626;
+  }
+}
+
+/* ── LIGHT — explicit user override, wins over system ───────────────────── */
+:root[data-theme='light'] {
+  color-scheme: light;
+  --brand: #059669;
+  --brand-soft: #d9f7ec;
+  --risk: #db2777;
+  --success: #059669;
+  --danger-color: #db2777;
+  --paper: #f5f8fb;
+  --paper-2: #ffffff;
+  --ink: #0a1626;
+  --ink-mute: #566579;
+  --rule: #dbe4ef;
+  --rule-strong: #c3d1e2;
+  --serp-link: #1a56db;
+  --serp-url: #059669;
+  --v-dev: #059669;
+  --v-finance: #b45309;
+  --v-culture: #db2777;
+  --v-health: #1a56db;
+  --v-personal: #566579;
+  --color-accent-fg: #ffffff;
+  --color-neutral-50: #ffffff;
+  --color-neutral-100: #eef3f9;
+  --color-neutral-200: #dbe4ef;
+  --color-neutral-300: #c3d1e2;
+  --color-neutral-500: #566579;
+  --color-neutral-700: #33465e;
+  --color-neutral-900: #0a1626;
+}
+
+/* ── DARK — explicit user override, wins over system (matches :root) ────── */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --brand: #16e7a6;
+  --brand-soft: #0d2a24;
+  --risk: #ff3d8b;
+  --success: #16e7a6;
+  --danger-color: #ff3d8b;
+  --paper: #0a1626;
+  --paper-2: #101f33;
+  --ink: #e6eef7;
+  --ink-mute: #8ba0bd;
+  --rule: #1d3049;
+  --rule-strong: #2a4463;
+  --serp-link: #6db3ff;
+  --serp-url: #16e7a6;
+  --v-dev: #16e7a6;
+  --v-finance: #ffb020;
+  --v-culture: #ff3d8b;
+  --v-health: #6db3ff;
+  --v-personal: #8ba0bd;
+  --color-accent-fg: #071019;
+  --color-neutral-50: #101f33;
+  --color-neutral-100: #142743;
+  --color-neutral-200: #1d3049;
+  --color-neutral-500: #8ba0bd;
+  --color-neutral-700: #b9c8dc;
+  --color-neutral-900: #e6eef7;
+}
+
+/* ── SEPIA — warm light reading variant ─────────────────────────────────── */
+:root[data-theme='sepia'] {
+  color-scheme: light;
+  --brand: #0f766e;
+  --brand-soft: #e4f1ee;
+  --risk: #be185d;
+  --paper: #f6f1e6;
+  --paper-2: #fdfaf2;
+  --ink: #2c2a24;
+  --ink-mute: #6f6a5c;
+  --rule: #e2d9c6;
+  --rule-strong: #cbbfa6;
+  --serp-link: #1d5fbf;
+  --serp-url: #0f766e;
+  --color-accent-fg: #fdfaf2;
+  --color-fg-soft: color-mix(in oklab, var(--ink) 55%, var(--paper));
+  --color-neutral-50: #fdfaf2;
+  --color-neutral-100: #f6f1e6;
+  --color-neutral-200: #e2d9c6;
+  --color-neutral-500: #6f6a5c;
+  --color-neutral-700: #4d4839;
+  --color-neutral-900: #2c2a24;
+}
+
+/* ── HIGH-CONTRAST — pure black/white, hard borders ─────────────────────── */
+:root[data-theme='hc'] {
+  color-scheme: light;
+  --brand: #007a52;
+  --brand-soft: #d9f7ec;
+  --risk: #c2185b;
+  --paper: #ffffff;
+  --paper-2: #ffffff;
+  --ink: #000000;
+  --ink-mute: #1f1f28;
+  --rule: #000000;
+  --rule-strong: #000000;
+  --serp-link: #0b3ea8;
+  --serp-url: #007a52;
+  --color-accent-fg: #ffffff;
+  --color-fg-soft: #1f1f28;
+  --color-neutral-50: #ffffff;
+  --color-neutral-100: #ffffff;
+  --color-neutral-200: #000000;
+  --color-neutral-500: #1f1f28;
+  --color-neutral-700: #000000;
+  --color-neutral-900: #000000;
+}
