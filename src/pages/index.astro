@@ -1,15 +1,20 @@
 ---
 import SeriesSpine from '~/components/SeriesSpine.astro'
 /**
- * /  — RankRoom homepage ("SERP native" front page).
+ * /  — RankRoom landing page (BOLD LANDING-PAGE archetype, 2026-08-12).
  *
- * The hero is a live search-engine result page. A query sits in a search box
- * with a blinking mint cursor; below it, the site's thesis is rendered as the
- * #1 organic result. Recent posts render as ranked SERP result rows: mono
- * position number, blue-style linked title, mint URL breadcrumb, snippet.
+ * NOT a post list first. A sectioned, scroll-told conversion page:
+ *   1. HERO      — giant display thesis + a live query line (the niche's mark)
+ *   2. PROOF     — a stat band pulled from the corpus (results / series / topics)
+ *   3. FEATURE   — the lead post as a full-width feature block
+ *   4. PLAYBOOK  — latest posts as a bold ranked stack (SERP row = signature)
+ *   5. SERIES    — running multi-part playbooks with progress spines
+ *   6. TOPICS    — refine-by-topic chips
+ *   7. CTA       — closing conversion band
  *
- * The SERP row is the site's signature primitive — the niche's own visual
- * vernacular, not a card grid or a newspaper column.
+ * The SERP-styled ranked row stays as the signature primitive, but it now
+ * lives inside a landing structure, not as the whole page. Deliberately does
+ * NOT resemble the top-nav card-grid siblings.
  */
 import BaseLayout from '~/layouts/BaseLayout.astro'
 import {
@@ -27,7 +32,7 @@ import { SITE_CONFIG } from '~/lib/config'
 
 const allPosts = await getPublishedPosts()
 const lead = allPosts[0]
-const recentPosts = allPosts.slice(1, 8)
+const recentPosts = allPosts.slice(1, 7)
 
 const seriesAll = await getSeriesWithCounts()
 type InProgress = {
@@ -65,9 +70,7 @@ inProgress.sort((a, b) => b.latest.valueOf() - a.latest.valueOf())
 
 const cats = await getCategoriesWithCounts()
 
-// SERP breadcrumb host — the "green URL" line under each result title.
 const host = 'marketing-blog.oriz.in'
-
 const leadVertical = lead ? postVertical(lead) : 'personal'
 const leadRt = lead ? (lead.data.readingTime ?? readingTimeFor(lead)) : ''
 
@@ -99,297 +102,365 @@ const jsonLd = {
   jsonLd={jsonLd}
   hideSidebar
 >
-  <div class="container-page">
-    {/* Hero — a live SERP. Query in a search box, thesis as the #1 result. */}
-    <section class="serp-hero" aria-label="Search results">
-      <div class="searchbox" role="img" aria-label='Search query: how to actually rank in 2026'>
-        <svg class="searchbox-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+  {/* ── 1 · HERO — giant type thesis over a live query line ─────────────── */}
+  <section class="hero" aria-labelledby="hero-h">
+    <div class="hero-inner">
+      <p class="hero-eyebrow mono">SEO · Content · Email · Analytics</p>
+      <h1 id="hero-h" class="hero-h">
+        Marketing that <em>compounds</em>—<br />not marketing that just spends.
+      </h1>
+      <p class="hero-sub">
+        Plain, tested tactics from someone who ships. No agency retainer, no fluff—just the
+        moves that keep ranking after you stop paying for them.
+      </p>
+      <div class="hero-actions">
+        <a class="hero-cta" href="/blog/">Read the playbook <span aria-hidden="true">→</span></a>
+        <a class="hero-ghost" href="/series/">Follow a series</a>
+      </div>
+      <div class="hero-query" role="img" aria-label="Search query: how to actually rank in 2026">
+        <svg class="hero-query-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
           <circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path>
         </svg>
-        <span class="searchbox-q">how to actually rank in 2026</span>
-        <span class="searchbox-caret" aria-hidden="true"></span>
+        <span class="hero-query-q mono">how to actually rank in 2026</span>
+        <span class="hero-query-caret" aria-hidden="true"></span>
       </div>
-      <p class="serp-stats mono">About <span class="serp-count">{allPosts.length}</span> results · sorted by what actually works</p>
+    </div>
+  </section>
 
-      {lead && (
-        <a class="serp-lead" href={`/blog/${lead.id}`} data-vertical={leadVertical}>
-          <span class="serp-url mono"><span class="serp-dot" aria-hidden="true"></span>{host} › {verticalLabel(leadVertical).toLowerCase()}</span>
-          <h1 class="serp-thesis">Marketing that compounds — not marketing that just spends.</h1>
-          <p class="serp-lead-title">{lead.data.title}</p>
-          <p class="serp-lead-snippet">{lead.data.description}</p>
-          <span class="serp-lead-meta mono">
-            <time datetime={lead.data.pubDate.toISOString()}>{lead.data.pubDate.toISOString().slice(0, 10)}</time>
-            <span aria-hidden="true">·</span><span>{leadRt}</span>
-            <span aria-hidden="true">·</span><span class="serp-featured">Featured snippet</span>
-          </span>
-        </a>
-      )}
+  {/* ── 2 · PROOF — stat band from the corpus ───────────────────────────── */}
+  <section class="proof" aria-label="At a glance">
+    <dl class="proof-row">
+      <div class="proof-stat">
+        <dt class="proof-label mono">results indexed</dt>
+        <dd class="proof-num">{allPosts.length}</dd>
+      </div>
+      <div class="proof-stat">
+        <dt class="proof-label mono">running series</dt>
+        <dd class="proof-num">{inProgress.length}</dd>
+      </div>
+      <div class="proof-stat">
+        <dt class="proof-label mono">topics covered</dt>
+        <dd class="proof-num">{cats.length}</dd>
+      </div>
+      <div class="proof-stat proof-tag">
+        <dt class="proof-label mono">sorted by</dt>
+        <dd class="proof-say">what actually works</dd>
+      </div>
+    </dl>
+  </section>
+
+  {/* ── 3 · FEATURE — lead post, full-width ─────────────────────────────── */}
+  {lead && (
+    <section class="feature" aria-labelledby="feature-h">
+      <p class="section-kicker mono">// featured snippet</p>
+      <a class="feature-card" href={`/blog/${lead.id}`} data-vertical={leadVertical}>
+        <span class="feature-url mono"><span class="serp-dot" aria-hidden="true"></span>{host} › {verticalLabel(leadVertical).toLowerCase()}</span>
+        <h2 id="feature-h" class="feature-title">{lead.data.title}</h2>
+        <p class="feature-snippet">{lead.data.description}</p>
+        <span class="feature-meta mono">
+          <time datetime={lead.data.pubDate.toISOString()}>{lead.data.pubDate.toISOString().slice(0, 10)}</time>
+          <span aria-hidden="true">·</span><span>{leadRt}</span>
+          <span aria-hidden="true">·</span><span class="feature-go">read #1 result →</span>
+        </span>
+      </a>
     </section>
+  )}
 
-    <hr class="hairline" />
-
-    {/* Stratum 1 — IN PROGRESS. */}
-    {inProgress.length > 0 && (
-      <section class="stratum stratum-progress" aria-labelledby="s-progress">
-        <h2 id="s-progress" class="stratum-h mono">// running series</h2>
-        <ul class="progress-list">
-          {inProgress.map((s) => (
-            <li class="progress-row">
-              <a class="progress-link" href={`/series/${s.slug}/`}>
-                <span class="progress-name">{s.name}</span>
-                <span class="progress-meta mono">part {s.published} of {s.total}</span>
-                <span class="progress-spine-mount">
-                  <SeriesSpine
-                    total={s.total}
-                    published={s.published}
-                    current={s.current}
-                    size="md"
-                  />
-                </span>
-                <span class="progress-ago mono">{ago(s.latest)}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </section>
-    )}
-
-    <hr class="hairline" />
-
-    {/* Stratum 2 — RECENT, as ranked SERP result rows. */}
-    <section class="stratum stratum-recent" aria-labelledby="s-recent">
-      <h2 id="s-recent" class="stratum-h mono">// latest results</h2>
-      <ol class="serp-list">
-        {recentPosts.map((p, i) => (
-          <li class="serp-row" data-vertical={postVertical(p)}>
-            <a class="serp-row-link" href={`/blog/${p.id}`}>
-              <span class="serp-rank mono" aria-hidden="true">#{i + 2}</span>
-              <span class="serp-body">
-                <span class="serp-row-url mono"><span class="serp-dot" aria-hidden="true"></span>{host} › {verticalLabel(postVertical(p)).toLowerCase()}</span>
-                <span class="serp-row-title">{p.data.title}</span>
-                <span class="serp-row-snippet">{p.data.description}</span>
-                <span class="serp-row-meta mono">
-                  <time datetime={p.data.pubDate.toISOString()}>{p.data.pubDate.toISOString().slice(0, 10)}</time>
-                  <span aria-hidden="true">·</span><span>{p.data.readingTime ?? readingTimeFor(p)}</span>
-                </span>
+  {/* ── 4 · PLAYBOOK — latest as a bold ranked stack (signature) ────────── */}
+  <section class="playbook" aria-labelledby="playbook-h">
+    <div class="section-head">
+      <h2 id="playbook-h" class="section-h">The latest moves</h2>
+      <a class="section-all" href="/archive/">all {allPosts.length} results →</a>
+    </div>
+    <ol class="serp-list">
+      {recentPosts.map((p, i) => (
+        <li class="serp-row" data-vertical={postVertical(p)}>
+          <a class="serp-row-link" href={`/blog/${p.id}`}>
+            <span class="serp-rank mono" aria-hidden="true">#{i + 2}</span>
+            <span class="serp-body">
+              <span class="serp-row-url mono"><span class="serp-dot" aria-hidden="true"></span>{host} › {verticalLabel(postVertical(p)).toLowerCase()}</span>
+              <span class="serp-row-title">{p.data.title}</span>
+              <span class="serp-row-snippet">{p.data.description}</span>
+              <span class="serp-row-meta mono">
+                <time datetime={p.data.pubDate.toISOString()}>{p.data.pubDate.toISOString().slice(0, 10)}</time>
+                <span aria-hidden="true">·</span><span>{p.data.readingTime ?? readingTimeFor(p)}</span>
               </span>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  {/* ── 5 · SERIES — running playbooks with progress spines ─────────────── */}
+  {inProgress.length > 0 && (
+    <section class="series-band" aria-labelledby="series-h">
+      <div class="section-head">
+        <h2 id="series-h" class="section-h">Playbooks in progress</h2>
+        <a class="section-all" href="/series/">browse series →</a>
+      </div>
+      <ul class="progress-list">
+        {inProgress.map((s) => (
+          <li class="progress-row">
+            <a class="progress-link" href={`/series/${s.slug}/`}>
+              <span class="progress-name">{s.name}</span>
+              <span class="progress-meta mono">part {s.published} of {s.total}</span>
+              <span class="progress-spine-mount">
+                <SeriesSpine total={s.total} published={s.published} current={s.current} size="md" />
+              </span>
+              <span class="progress-ago mono">{ago(s.latest)}</span>
             </a>
           </li>
         ))}
-      </ol>
-      <p class="all-link">
-        <a href="/archive/">see all {allPosts.length} results in the archive →</a>
+      </ul>
+    </section>
+  )}
+
+  {/* ── 6 · TOPICS — refine chips ───────────────────────────────────────── */}
+  {cats.length > 0 && (
+    <section class="topics" aria-labelledby="topics-h">
+      <h2 id="topics-h" class="section-h">Refine by topic</h2>
+      <p class="cats-row">
+        {cats.map((c) => (
+          <a href={`/categories/${slugifyTag(c.category)}/`} class="cats-chip" data-vertical={verticalFor(c.category)}>
+            <span class="cats-name">{c.category}</span>
+            <span class="cats-count mono">{c.count}</span>
+          </a>
+        ))}
       </p>
     </section>
+  )}
 
-    <hr class="hairline" />
-
-    {/* Stratum 3 — TOPICS (query-refinement chips). */}
-    {cats.length > 0 && (
-      <section class="stratum stratum-cats" aria-labelledby="s-cats">
-        <h2 id="s-cats" class="stratum-h mono">// refine by topic</h2>
-        <p class="cats-row">
-          {cats.map((c) => (
-            <a href={`/categories/${slugifyTag(c.category)}/`} class="cats-chip" data-vertical={verticalFor(c.category)}>
-              <span class="cats-name">{c.category}</span>
-              <span class="cats-count mono">{c.count}</span>
-            </a>
-          ))}
-        </p>
-      </section>
-    )}
-  </div>
+  {/* ── 7 · CTA — closing conversion band ───────────────────────────────── */}
+  <section class="cta-band" aria-labelledby="cta-h">
+    <h2 id="cta-h" class="cta-h">Rank for the query your customer is already typing.</h2>
+    <div class="cta-actions">
+      <a class="hero-cta" href="/blog/">Start with the playbook <span aria-hidden="true">→</span></a>
+      <a class="hero-ghost" href="/rss.xml">Subscribe via RSS</a>
+    </div>
+  </section>
 </BaseLayout>
 
 <style>
-  .container-page {
-    max-width: 920px;
+  /* Shared section rhythm */
+  .hero, .proof, .feature, .playbook, .series-band, .topics, .cta-band {
+    max-width: 1040px;
     margin-inline: auto;
     padding-inline: clamp(1.25rem, 4vw, 2rem);
   }
-
-  /* ── SERP hero ─────────────────────────────────────────────────────── */
-
-  .serp-hero {
-    padding-block: clamp(2rem, 6vw, 3.5rem) 1.75rem;
-  }
-  .searchbox {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    max-width: 560px;
-    padding: 0.85rem 1.15rem;
-    background: var(--paper-2);
-    border: 1px solid var(--rule-strong);
-    border-radius: 999px;
-    box-shadow: 0 1px 0 color-mix(in oklab, var(--accent) 12%, transparent);
-    color: var(--ink);
-  }
-  .searchbox-icon {
-    width: 1.15rem;
-    height: 1.15rem;
-    color: var(--ink-mute);
-    flex: 0 0 auto;
-  }
-  .searchbox-q {
-    font-family: var(--font-mono);
-    font-size: clamp(0.95rem, 2.4vw, 1.15rem);
-    color: var(--ink);
-    letter-spacing: -0.01em;
-  }
-  .searchbox-caret {
-    width: 2px;
-    height: 1.25em;
-    background: var(--accent);
-    margin-left: -0.35rem;
-    animation: caret-blink 1.05s steps(1) infinite;
-  }
-  @keyframes caret-blink {
-    0%, 50% { opacity: 1; }
-    50.01%, 100% { opacity: 0; }
-  }
-
-  .serp-stats {
-    font-size: 12px;
-    letter-spacing: 0.02em;
-    color: var(--ink-mute);
-    margin: 0.9rem 0 1.75rem;
-  }
-  .serp-count { color: var(--ink); font-weight: 500; }
-
-  .serp-url, .serp-row-url {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 12px;
-    letter-spacing: 0.01em;
-    color: var(--serp-url);
-  }
-  .serp-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--serp-url);
-    flex: 0 0 auto;
-  }
-
-  .serp-lead {
-    --v: var(--v-personal);
-    display: grid;
-    gap: 0.55rem;
-    color: var(--ink);
-    text-decoration: none;
-    border-left: 3px solid var(--accent);
-    padding: 0.25rem 0 0.25rem 1.15rem;
-  }
-  .serp-lead[data-vertical='dev'] { --v: var(--v-dev); }
-  .serp-lead[data-vertical='finance'] { --v: var(--v-finance); }
-  .serp-lead[data-vertical='culture'] { --v: var(--v-culture); }
-  .serp-lead[data-vertical='health'] { --v: var(--v-health); }
-  .serp-thesis {
-    font-family: var(--font-display);
-    font-size: clamp(1.9rem, 5vw, 3rem);
-    font-weight: 600;
-    letter-spacing: -0.025em;
-    line-height: 1.05;
-    margin: 0.15rem 0 0.35rem;
-    max-width: 18ch;
-    color: var(--ink);
-  }
-  .serp-lead-title {
-    font-family: var(--font-sans);
-    font-size: 1.15rem;
-    font-weight: 500;
-    color: var(--serp-link);
-    margin: 0;
-    text-decoration: underline;
-    text-decoration-color: transparent;
-    text-underline-offset: 3px;
-  }
-  .serp-lead:hover .serp-lead-title { text-decoration-color: var(--serp-link); }
-  .serp-lead-snippet {
-    font-size: 1rem;
-    line-height: 1.55;
-    color: var(--ink-mute);
-    margin: 0;
-    max-width: 62ch;
-  }
-  .serp-lead-meta {
-    display: inline-flex; flex-wrap: wrap; gap: 0.45rem;
-    font-size: 11px; letter-spacing: 0.03em; color: var(--ink-mute);
-  }
-  .serp-featured { color: var(--accent); }
-
-  /* ── Strata ─────────────────────────────────────────────────────────── */
-
-  .stratum { padding-block: 1.75rem; }
-  .stratum-h {
+  .section-kicker {
     font-family: var(--font-mono);
     font-size: 12px;
     letter-spacing: 0.06em;
     color: var(--accent);
-    font-weight: 500;
+    margin: 0 0 1rem;
+  }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .section-h {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    margin: 0;
+    color: var(--ink);
+  }
+  .section-all {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-mute);
+    text-decoration: none;
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+  .section-all:hover { color: var(--accent); }
+  .serp-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--serp-url); flex: 0 0 auto; }
+
+  /* ── 1 · HERO ─────────────────────────────────────────────────────────── */
+  .hero { padding-block: clamp(3rem, 10vw, 7rem) clamp(2rem, 5vw, 3.5rem); }
+  .hero-inner { max-width: 22ch; }
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
     margin: 0 0 1.25rem;
   }
-
-  /* ── In progress ──────────────────────────────────────────────────── */
-
-  .progress-list {
-    list-style: none; padding: 0; margin: 0;
-    display: flex; flex-direction: column; gap: 0.625rem;
-  }
-  .progress-row { padding: 0; }
-  .progress-link {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto auto;
-    gap: 1rem;
-    align-items: baseline;
-    color: var(--ink);
-    text-decoration: none;
-    padding-block: 0.5rem;
-  }
-  .progress-link:hover { color: var(--accent); }
-  .progress-link:hover .progress-meta,
-  .progress-link:hover .progress-ago { color: var(--accent); }
-  .progress-name {
+  .hero-h {
     font-family: var(--font-display);
-    font-size: 1.0625rem;
+    font-size: clamp(2.75rem, 9vw, 6rem);
     font-weight: 600;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.04em;
+    line-height: 0.98;
+    margin: 0;
     color: var(--ink);
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    max-width: 16ch;
   }
-  .progress-meta, .progress-ago {
+  .hero-h em {
+    font-style: normal;
+    color: var(--accent);
+    -webkit-text-decoration: underline var(--accent) 0.06em;
+    text-decoration: underline var(--accent) 0.06em;
+    text-underline-offset: 0.1em;
+  }
+  .hero-sub {
+    font-size: clamp(1.05rem, 2.4vw, 1.3rem);
+    line-height: 1.55;
+    color: var(--ink-mute);
+    margin: 1.5rem 0 0;
+    max-width: 46ch;
+  }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.4rem;
+    border-radius: var(--radius-button, 8px);
+    background: var(--accent);
+    color: var(--color-accent-fg);
+    font-family: var(--font-utility, var(--font-mono));
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    transition: transform var(--dur-fast, 120ms) ease, filter var(--dur-fast, 120ms) ease;
+  }
+  .hero-cta span { transition: transform var(--dur-fast, 120ms) ease; }
+  .hero-cta:hover { filter: brightness(1.06); transform: translateY(-1px); }
+  .hero-cta:hover span { transform: translateX(4px); }
+  .hero-cta:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .hero-ghost {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.85rem 1.4rem;
+    border-radius: var(--radius-button, 8px);
+    border: 1px solid var(--rule-strong);
+    color: var(--ink);
+    font-family: var(--font-utility, var(--font-mono));
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    transition: border-color var(--dur-fast, 120ms) ease, color var(--dur-fast, 120ms) ease;
+  }
+  .hero-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .hero-ghost:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  .hero-query {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-top: 2.5rem;
+    padding: 0.7rem 1.1rem;
+    background: color-mix(in oklab, var(--paper-2) 70%, transparent);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    color: var(--ink);
+  }
+  .hero-query-icon { width: 1.05rem; height: 1.05rem; color: var(--ink-mute); flex: 0 0 auto; }
+  .hero-query-q { font-family: var(--font-mono); font-size: 0.95rem; color: var(--ink); }
+  .hero-query-caret {
+    width: 2px; height: 1.2em; background: var(--accent); margin-left: -0.4rem;
+    animation: caret-blink 1.05s steps(1) infinite;
+  }
+  @keyframes caret-blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
+
+  /* ── 2 · PROOF ────────────────────────────────────────────────────────── */
+  .proof {
+    padding-block: 1.5rem;
+    border-block: 1px solid var(--rule);
+  }
+  .proof-row {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem 1rem;
+  }
+  .proof-stat { margin: 0; }
+  .proof-label {
     font-family: var(--font-mono);
     font-size: 11px;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
     color: var(--ink-mute);
-  }
-  .progress-spine-mount { display: inline-flex; }
-
-  @media (max-width: 640px) {
-    .progress-link {
-      grid-template-columns: minmax(0, 1fr) auto;
-      grid-template-areas:
-        'name      ago'
-        'meta      meta'
-        'spine     spine';
-      row-gap: 0.25rem;
-    }
-    .progress-name { grid-area: name; }
-    .progress-meta { grid-area: meta; }
-    .progress-spine-mount { grid-area: spine; }
-    .progress-ago { grid-area: ago; text-align: right; }
-  }
-
-  /* ── SERP result rows (signature) ───────────────────────────────────── */
-
-  .serp-list {
-    list-style: none;
-    padding: 0;
     margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
   }
+  .proof-num {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 6vw, 3.25rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--ink);
+    margin: 0.35rem 0 0;
+  }
+  .proof-say {
+    font-family: var(--font-display);
+    font-size: clamp(1.15rem, 3vw, 1.6rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--accent);
+    margin: 0.35rem 0 0;
+  }
+  @media (min-width: 720px) { .proof-row { grid-template-columns: repeat(4, 1fr); } }
+
+  /* ── 3 · FEATURE ──────────────────────────────────────────────────────── */
+  .feature { padding-block: clamp(2.5rem, 6vw, 4rem) 1.5rem; }
+  .feature-card {
+    --v: var(--v-personal);
+    display: grid;
+    gap: 0.6rem;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius-card, 12px);
+    background: var(--paper-2);
+    color: var(--ink);
+    text-decoration: none;
+    transition: border-color var(--dur-fast, 120ms) ease, transform var(--dur-fast, 120ms) ease;
+  }
+  .feature-card[data-vertical='dev'] { --v: var(--v-dev); }
+  .feature-card[data-vertical='finance'] { --v: var(--v-finance); }
+  .feature-card[data-vertical='culture'] { --v: var(--v-culture); }
+  .feature-card[data-vertical='health'] { --v: var(--v-health); }
+  .feature-card:hover { transform: translateY(-2px); }
+  .feature-url {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-size: 12px; letter-spacing: 0.01em; color: var(--serp-url);
+  }
+  .feature-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.7rem, 4.5vw, 2.75rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    margin: 0.15rem 0 0;
+    color: var(--ink);
+    max-width: 20ch;
+  }
+  .feature-card:hover .feature-title { color: var(--serp-link); }
+  .feature-snippet {
+    font-size: 1.0625rem; line-height: 1.55; color: var(--ink-mute);
+    margin: 0.35rem 0 0; max-width: 62ch;
+  }
+  .feature-meta {
+    display: inline-flex; flex-wrap: wrap; gap: 0.45rem;
+    font-size: 11px; letter-spacing: 0.03em; color: var(--ink-mute); margin-top: 0.35rem;
+  }
+  .feature-go { color: var(--accent); }
+
+  /* ── 4 · PLAYBOOK (SERP ranked stack — signature) ────────────────────── */
+  .playbook { padding-block: clamp(2.5rem, 6vw, 4rem); }
+  .serp-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.25rem; }
   .serp-row {
     --v: var(--v-personal);
     border-radius: var(--radius-card);
@@ -400,85 +471,93 @@ const jsonLd = {
   .serp-row[data-vertical='culture'] { --v: var(--v-culture); }
   .serp-row[data-vertical='health'] { --v: var(--v-health); }
   .serp-row:hover { background: color-mix(in oklab, var(--paper-2) 75%, transparent); }
-
   .serp-row-link {
     display: grid;
-    grid-template-columns: 2.75rem minmax(0, 1fr);
-    gap: 0.5rem 1rem;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    gap: 0.5rem 1.15rem;
     align-items: start;
     color: var(--ink);
     text-decoration: none;
-    padding: 0.95rem 1rem;
+    padding: 1.1rem 1rem;
   }
   .serp-rank {
-    font-size: 13px;
+    font-family: var(--font-mono);
+    font-size: clamp(1.5rem, 4vw, 2.1rem);
     font-weight: 500;
-    color: var(--ink-mute);
-    padding-top: 1.15rem;
+    color: var(--v);
     text-align: right;
+    padding-right: 0.7rem;
     border-right: 2px solid var(--v);
-    padding-right: 0.65rem;
-    min-height: 2.2em;
+    line-height: 1;
+    padding-top: 0.5rem;
   }
   .serp-body { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; }
+  .serp-row-url {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-size: 12px; letter-spacing: 0.01em; color: var(--serp-url);
+  }
   .serp-row-title {
     font-family: var(--font-sans);
-    font-size: 1.15rem;
+    font-size: clamp(1.1rem, 2.6vw, 1.35rem);
     font-weight: 500;
     color: var(--serp-link);
-    line-height: 1.3;
+    line-height: 1.25;
     text-decoration: underline;
     text-decoration-color: transparent;
     text-underline-offset: 3px;
   }
   .serp-row-link:hover .serp-row-title { text-decoration-color: var(--serp-link); }
   .serp-row-snippet {
-    font-size: 0.9375rem;
-    color: var(--ink-mute);
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    overflow: hidden;
+    font-size: 0.9375rem; color: var(--ink-mute); line-height: 1.5;
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden;
   }
-  .serp-row-meta {
-    display: inline-flex; gap: 0.4rem;
-    font-size: 11px; letter-spacing: 0.03em; color: var(--ink-mute);
-  }
-
+  .serp-row-meta { display: inline-flex; gap: 0.4rem; font-size: 11px; letter-spacing: 0.03em; color: var(--ink-mute); }
   @media (max-width: 480px) {
-    .serp-row-link { grid-template-columns: 1.9rem minmax(0, 1fr); gap: 0.35rem 0.65rem; padding-inline: 0.5rem; }
-    .serp-rank { padding-right: 0.4rem; }
+    .serp-row-link { grid-template-columns: 2.1rem minmax(0, 1fr); gap: 0.35rem 0.7rem; padding-inline: 0.4rem; }
+    .serp-rank { padding-right: 0.45rem; }
   }
 
-  .all-link {
-    margin: 1.25rem 0 0;
-    font-family: var(--font-mono);
-    font-size: 13px;
+  /* ── 5 · SERIES ───────────────────────────────────────────────────────── */
+  .series-band { padding-block: clamp(2rem, 5vw, 3.5rem); }
+  .progress-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+  .progress-link {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
+    gap: 1rem;
+    align-items: baseline;
+    color: var(--ink);
+    text-decoration: none;
+    padding: 0.75rem 0.5rem;
+    border-bottom: 1px solid var(--rule);
   }
-  .all-link a {
-    color: var(--ink-mute);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    text-decoration-color: var(--rule);
+  .progress-link:hover { color: var(--accent); }
+  .progress-link:hover .progress-meta, .progress-link:hover .progress-ago { color: var(--accent); }
+  .progress-name {
+    font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; letter-spacing: -0.01em;
+    color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
-  .all-link a:hover { color: var(--accent); text-decoration-color: var(--accent); }
+  .progress-meta, .progress-ago { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em; color: var(--ink-mute); }
+  .progress-spine-mount { display: inline-flex; }
+  @media (max-width: 640px) {
+    .progress-link {
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-areas: 'name ago' 'meta meta' 'spine spine';
+      row-gap: 0.3rem;
+    }
+    .progress-name { grid-area: name; }
+    .progress-meta { grid-area: meta; }
+    .progress-spine-mount { grid-area: spine; }
+    .progress-ago { grid-area: ago; text-align: right; }
+  }
 
-  /* ── Topics (query-refinement chips) ────────────────────────────────── */
-
-  .cats-row {
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
+  /* ── 6 · TOPICS ───────────────────────────────────────────────────────── */
+  .topics { padding-block: clamp(2rem, 5vw, 3.5rem); }
+  .topics .section-h { margin-bottom: 1.25rem; }
+  .cats-row { margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
   .cats-chip {
     --v: var(--v-personal);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    padding: 0.4rem 0.8rem;
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    padding: 0.45rem 0.85rem;
     border: 1px solid var(--rule);
     border-radius: 999px;
     background: var(--paper-2);
@@ -491,20 +570,30 @@ const jsonLd = {
   .cats-chip[data-vertical='culture'] { --v: var(--v-culture); }
   .cats-chip[data-vertical='health'] { --v: var(--v-health); }
   .cats-chip:hover { border-color: var(--v); color: var(--v); }
-  .cats-name {
-    font-family: var(--font-sans);
-    font-size: 14px;
-    font-weight: 500;
-    letter-spacing: -0.005em;
+  .cats-name { font-family: var(--font-sans); font-size: 14px; font-weight: 500; letter-spacing: -0.005em; }
+  .cats-count { color: var(--ink-mute); font-family: var(--font-mono); font-size: 11px; }
+
+  /* ── 7 · CTA ──────────────────────────────────────────────────────────── */
+  .cta-band {
+    margin-block: clamp(3rem, 8vw, 6rem) 0;
+    padding-block: clamp(3rem, 8vw, 5.5rem);
+    text-align: center;
+    border-top: 1px solid var(--rule);
   }
-  .cats-count {
-    color: var(--ink-mute);
-    font-family: var(--font-mono);
-    font-size: 11px;
+  .cta-h {
+    font-family: var(--font-display);
+    font-size: clamp(1.9rem, 6vw, 3.5rem);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+    margin: 0 auto;
+    max-width: 20ch;
+    color: var(--ink);
   }
+  .cta-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin-top: 2rem; }
 
   @media (prefers-reduced-motion: reduce) {
-    .searchbox-caret { animation: none; opacity: 1; }
+    .hero-query-caret { animation: none; opacity: 1; }
+    .hero-cta, .hero-cta span, .feature-card, .serp-row { transition: none; }
   }
 </style>
-

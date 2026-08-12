@@ -3,112 +3,160 @@ import HeaderControls from '~/components/HeaderControls.tsx'
 import MultiSearch from '~/components/MultiSearch.tsx'
 import StatusBanner from '~/components/StatusBanner.astro'
 /*
- * Header — editorial masthead bar ("Signal Press").
+ * Header — floating pill nav ("RankRoom" landing shell, 2026-08-12).
  *
- *   ┌─────────────────────────────────────────────────────────────────┐
- *   │  oriz/blog        LATEST · SERIES · TAGS · ABOUT    ⌘K rss ··· │
- *   └─────────────────────────────────────────────────────────────────┘
+ *        ╭───────────────────────────────────────────────────────────╮
+ *        │  #1 RankRoom     PLAYBOOK · SERIES · TOPICS · ABOUT   ⌘K → │
+ *        ╰───────────────────────────────────────────────────────────╯
  *
- * Left: serif wordmark. Center: mono uppercase nav with orange underline.
- * Right: search (⌘K), rss, ··· overflow. 64px, sticky, paper blur.
+ * NOT the sibling full-width top bar. A centered floating capsule that sits
+ * over the hero and SHRINKS + tightens on scroll (data-scrolled toggled by a
+ * tiny inline observer). Conversion-page energy: the brand mark doubles as the
+ * top-rank badge, the nav is compact, and a single mint CTA anchors the right.
  */
 import Wordmark from '~/components/Wordmark.astro'
 ---
 
 <StatusBanner />
-<header class="site-header" transition:persist="site-header">
-  <div class="container-page header-inner">
-    <div class="brand">
-      <Wordmark subtitle="blog" size={21} href="/" />
-    </div>
-    <nav class="header-nav" aria-label="Primary">
-      <a href="/" aria-current={Astro.url.pathname === '/' ? 'page' : undefined}>Latest</a>
+<div class="pill-rail" transition:persist="site-header">
+  <header class="pill" data-scrolled="false">
+    <a class="pill-brand" href="/" aria-label="RankRoom home">
+      <Wordmark subtitle={undefined} size={18} href={null} />
+    </a>
+    <nav class="pill-nav" aria-label="Primary">
+      <a href="/blog/" aria-current={Astro.url.pathname.startsWith('/blog') ? 'page' : undefined}>Playbook</a>
       <a href="/series/" aria-current={Astro.url.pathname.startsWith('/series') ? 'page' : undefined}>Series</a>
-      <a href="/tags/" aria-current={Astro.url.pathname.startsWith('/tags') ? 'page' : undefined}>Tags</a>
+      <a href="/categories/" aria-current={Astro.url.pathname.startsWith('/categories') ? 'page' : undefined}>Topics</a>
       <a href="/about/" aria-current={Astro.url.pathname.startsWith('/about') ? 'page' : undefined}>About</a>
     </nav>
-    <div class="header-multisearch">
-      <MultiSearch client:idle />
+    <div class="pill-actions">
+      <div class="pill-multisearch"><MultiSearch client:idle /></div>
+      <div class="pill-controls"><HeaderControls client:idle /></div>
+      <a class="pill-cta" href="/blog/">Start ranking <span aria-hidden="true">→</span></a>
     </div>
-    <div class="header-controls-mount">
-      <HeaderControls client:idle />
-    </div>
-  </div>
-</header>
+  </header>
+</div>
+
+<script is:inline>
+  {`(() => {
+    const pill = document.querySelector('.pill');
+    if (!pill) return;
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        pill.dataset.scrolled = window.scrollY > 24 ? 'true' : 'false';
+        ticking = false;
+      });
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    document.addEventListener('astro:after-swap', () => {
+      pill.dataset.scrolled = window.scrollY > 24 ? 'true' : 'false';
+    });
+  })()`}
+</script>
 
 <style>
-  .site-header {
+  .pill-rail {
     position: sticky;
     top: 0;
     z-index: 50;
-    background: color-mix(in oklab, var(--paper) 90%, transparent);
-    backdrop-filter: saturate(180%) blur(10px);
-    -webkit-backdrop-filter: saturate(180%) blur(10px);
-    border-bottom: 1px solid var(--rule);
+    display: flex;
+    justify-content: center;
+    padding: clamp(0.6rem, 1.6vw, 1rem) 1rem;
+    pointer-events: none;
   }
-  .header-inner {
-    height: 64px;
+  .pill {
+    pointer-events: auto;
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: clamp(1rem, 2.4vw, 2rem);
+    width: min(1040px, 100%);
+    padding: 0.7rem 0.8rem 0.7rem 1.1rem;
+    background: color-mix(in oklab, var(--paper-2) 82%, transparent);
+    border: 1px solid var(--rule-strong);
+    border-radius: 999px;
+    box-shadow: 0 10px 30px -18px color-mix(in oklab, #000 70%, transparent),
+      inset 0 0 0 1px color-mix(in oklab, var(--accent) 8%, transparent);
+    backdrop-filter: saturate(160%) blur(14px);
+    -webkit-backdrop-filter: saturate(160%) blur(14px);
+    transition:
+      padding var(--dur-base, 200ms) var(--ease-out),
+      width var(--dur-base, 200ms) var(--ease-out),
+      background var(--dur-base, 200ms) var(--ease-out),
+      box-shadow var(--dur-base, 200ms) var(--ease-out);
   }
-  .brand {
-    flex: 0 0 auto;
-    display: inline-flex;
-    align-items: center;
+  .pill[data-scrolled='true'] {
+    width: min(880px, 100%);
+    padding-block: 0.5rem;
+    background: color-mix(in oklab, var(--paper-2) 94%, transparent);
+    box-shadow: 0 14px 34px -16px color-mix(in oklab, #000 80%, transparent);
   }
-  .header-nav {
+
+  .pill-brand { display: inline-flex; align-items: center; text-decoration: none; flex: 0 0 auto; }
+
+  .pill-nav {
     display: none;
-    gap: 1.5rem;
+    gap: clamp(0.9rem, 1.8vw, 1.5rem);
+    margin-inline: auto;
     font-family: var(--font-utility, var(--font-mono));
     font-size: 12px;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--color-muted);
   }
-  .header-nav a {
+  .pill-nav a {
     position: relative;
-    padding-block: 0.375rem;
-    color: var(--color-muted);
+    color: var(--ink-mute);
     text-decoration: none;
+    padding-block: 0.2rem;
     transition: color var(--dur-fast, 120ms) ease;
   }
-  .header-nav a:hover {
-    color: var(--color-accent);
-  }
-  .header-nav a::after {
+  .pill-nav a:hover { color: var(--ink); }
+  .pill-nav a[aria-current='page'] { color: var(--accent); }
+  .pill-nav a[aria-current='page']::after {
     content: '';
     position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 2px;
-    background: var(--color-accent);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform var(--dur-fast, 120ms) ease;
+    left: 50%;
+    bottom: -3px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+    transform: translateX(-50%);
   }
-  .header-nav a:hover::after,
-  .header-nav a[aria-current='page']::after {
-    transform: scaleX(1);
+
+  .pill-actions { display: inline-flex; align-items: center; gap: 0.5rem; margin-left: auto; }
+  .pill-multisearch, .pill-controls { display: inline-flex; align-items: center; }
+
+  .pill-cta {
+    display: none;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.95rem;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--color-accent-fg);
+    font-family: var(--font-utility, var(--font-mono));
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: transform var(--dur-fast, 120ms) ease, filter var(--dur-fast, 120ms) ease;
   }
-  .header-nav a[aria-current='page'] {
-    color: var(--color-accent);
-  }
+  .pill-cta:hover { filter: brightness(1.06); transform: translateY(-1px); }
+  .pill-cta:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .pill-cta span { transition: transform var(--dur-fast, 120ms) ease; }
+  .pill-cta:hover span { transform: translateX(3px); }
+
   @media (min-width: 768px) {
-    .header-nav { display: inline-flex; align-items: center; }
+    .pill-nav { display: inline-flex; align-items: center; }
+    .pill-cta { display: inline-flex; }
   }
-  .header-controls-mount {
-    margin-left: auto;
-    display: inline-flex;
-    align-items: center;
-  }
-  .header-multisearch {
-    margin-left: auto;
-    display: inline-flex;
-    align-items: center;
-  }
-  .header-multisearch + .header-controls-mount {
-    margin-left: 0.75rem;
+  @media (prefers-reduced-motion: reduce) {
+    .pill, .pill-cta, .pill-cta span { transition: none; }
   }
 </style>
