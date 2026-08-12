@@ -1,0 +1,126 @@
+---
+/**
+ * SerpSignal — bespoke marketing-blog signature module.
+ *
+ * Renders a mini "rank tracker" badge showing the post's inferred funnel stage
+ * (TOFU / MOFU / BOFU) and a colour-coded signal bar. This component appears
+ * on every post card and is unique to the marketing blog — no sibling uses it.
+ *
+ * Funnel stage is inferred from category text:
+ *   TOFU  → awareness: seo, content, social, brand, awareness
+ *   MOFU  → consideration: email, landing, copy, lead, nurture, conversion
+ *   BOFU  → decision: analytics, roi, retention, cro, paid, ads
+ *   default → TOFU
+ *
+ * Props:
+ *   category  — post category string
+ *   size      — "sm" (post list) | "lg" (featured, standalone)
+ */
+export interface Props {
+  category: string
+  size?: 'sm' | 'lg'
+}
+
+const { category, size = 'sm' } = Astro.props
+
+const cat = category.toLowerCase()
+
+type Stage = 'TOFU' | 'MOFU' | 'BOFU'
+
+function getStage(c: string): Stage {
+  if (/analytic|roi|retention|cro|paid|ads|convert|revenue/.test(c)) return 'BOFU'
+  if (/email|landing|copy|lead|nurture|funnel|drip/.test(c)) return 'MOFU'
+  return 'TOFU'
+}
+
+const stage = getStage(cat)
+
+const labels: Record<Stage, string> = {
+  TOFU: 'Awareness',
+  MOFU: 'Consideration',
+  BOFU: 'Decision',
+}
+
+const bars: Record<Stage, number> = { TOFU: 1, MOFU: 2, BOFU: 3 }
+const filled = bars[stage]
+---
+
+<span class={`ss ss--${size} ss--${stage.toLowerCase()}`} aria-label={`Funnel stage: ${labels[stage]}`} title={`Funnel: ${labels[stage]}`}>
+  <span class="ss-stage">{stage}</span>
+  <span class="ss-bars" aria-hidden="true">
+    <span class={`ss-bar ${filled >= 1 ? 'ss-bar--on' : ''}`}></span>
+    <span class={`ss-bar ${filled >= 2 ? 'ss-bar--on' : ''}`}></span>
+    <span class={`ss-bar ${filled >= 3 ? 'ss-bar--on' : ''}`}></span>
+  </span>
+</span>
+
+<style>
+  .ss {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem 0.2rem 0.4rem;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    vertical-align: middle;
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  /* TOFU — electric-mint: top-of-funnel, awareness, broad reach */
+  .ss--tofu {
+    color: var(--brand, #16e7a6);
+    border-color: color-mix(in oklab, var(--brand, #16e7a6) 30%, transparent);
+    background: color-mix(in oklab, var(--brand, #16e7a6) 8%, transparent);
+  }
+  .ss--tofu .ss-bar--on { background: var(--brand, #16e7a6); }
+
+  /* MOFU — amber: consideration, warmer intent */
+  .ss--mofu {
+    color: var(--v-finance, #ffb020);
+    border-color: color-mix(in oklab, var(--v-finance, #ffb020) 30%, transparent);
+    background: color-mix(in oklab, var(--v-finance, #ffb020) 8%, transparent);
+  }
+  .ss--mofu .ss-bar--on { background: var(--v-finance, #ffb020); }
+
+  /* BOFU — magenta: decision, high-intent, conversion */
+  .ss--bofu {
+    color: var(--risk, #ff3d8b);
+    border-color: color-mix(in oklab, var(--risk, #ff3d8b) 30%, transparent);
+    background: color-mix(in oklab, var(--risk, #ff3d8b) 8%, transparent);
+  }
+  .ss--bofu .ss-bar--on { background: var(--risk, #ff3d8b); }
+
+  .ss-stage { line-height: 1; }
+
+  .ss-bars {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+  }
+  .ss-bar {
+    width: 3px;
+    border-radius: 1px;
+    background: color-mix(in oklab, currentColor 20%, transparent);
+  }
+  .ss--sm .ss-bars { height: 10px; }
+  .ss--sm .ss-bar:nth-child(1) { height: 4px; }
+  .ss--sm .ss-bar:nth-child(2) { height: 7px; }
+  .ss--sm .ss-bar:nth-child(3) { height: 10px; }
+
+  .ss--lg { font-size: 11px; padding: 0.25rem 0.65rem 0.25rem 0.5rem; }
+  .ss--lg .ss-bars { height: 13px; }
+  .ss--lg .ss-bar { width: 4px; }
+  .ss--lg .ss-bar:nth-child(1) { height: 5px; }
+  .ss--lg .ss-bar:nth-child(2) { height: 9px; }
+  .ss--lg .ss-bar:nth-child(3) { height: 13px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ss { transition: none; }
+  }
+</style>

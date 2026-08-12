@@ -1,13 +1,13 @@
 ---
 /**
- * PostCard — editorial listing entry ("Signal Press"). One hairline-ruled
- * row (no rounded card, no shadow, no radius): a vertical-coloured kicker
- * rule + desk label, a serif headline, a one-line dek, and a mono meta foot
- * (date · reading time). Used by every listing (index, tag, category,
- * related). The whole entry is one link; the desk kicker deep-links to the
- * category.
+ * PostCard — SERP-row listing entry for the marketing blog (RankRoom).
+ *
+ * Visual identity: a search-result row — URL breadcrumb, title as a SERP
+ * blue link, snippet, meta foot + SerpSignal funnel badge. NO rounded card,
+ * NO shadow. Left rank-tick rule in vertical color. Unique to this blog.
  */
 import type { CollectionEntry } from 'astro:content'
+import SerpSignal from '~/components/SerpSignal.astro'
 import { formatPostDate, postVertical, slugifyTag, verticalLabel } from '~/lib/blog'
 
 export interface Props {
@@ -19,20 +19,21 @@ const { title, description, pubDate, category, readingTime } = post.data
 const href = `/blog/${post.id}`
 const catHref = `/categories/${slugifyTag(category)}/`
 const vert = postVertical(post)
+const host = 'marketing-blog.oriz.in'
 ---
 
 <article class="post-card" data-vertical={vert}>
   <a class="post-card-link" href={href}>
-    <span class="post-card-kicker">
-      <span class="post-card-tick" aria-hidden="true"></span>
-      <span class="post-card-desk">{verticalLabel(vert)}</span>
-      <span class="post-card-cat">{category}</span>
+    <span class="pc-url mono">
+      <span class="pc-dot" aria-hidden="true"></span>
+      <span>{host} › {verticalLabel(vert).toLowerCase()}</span>
     </span>
-    <h3 class="post-card-title">{title}</h3>
-    <p class="post-card-desc">{description}</p>
-    <span class="post-card-foot">
-      <time datetime={pubDate.toISOString()}>{formatPostDate(pubDate)}</time>
-      {readingTime && <span class="post-card-rt">{readingTime}</span>}
+    <h3 class="pc-title">{title}</h3>
+    <p class="pc-snippet">{description}</p>
+    <span class="pc-foot">
+      <time datetime={pubDate.toISOString()} class="mono">{formatPostDate(pubDate)}</time>
+      {readingTime && <span class="pc-rt mono">{readingTime}</span>}
+      <SerpSignal category={category} size="sm" />
     </span>
   </a>
   <a class="post-card-cat-link" href={catHref} aria-label={`More in ${category}`}>{category}</a>
@@ -51,80 +52,77 @@ const vert = postVertical(post)
 
   .post-card-link {
     display: grid;
-    gap: 0.5rem;
-    padding: 1.125rem 0 1.25rem 0.875rem;
+    gap: 0.3rem;
+    padding: 1.1rem 0 1.2rem 0.875rem;
     text-decoration: none;
     color: var(--ink);
     border-left: 2px solid transparent;
     margin-left: -0.875rem;
-    padding-left: 0.875rem;
     transition: border-color var(--dur-fast, 120ms) ease;
   }
   .post-card-link:hover { border-left-color: var(--v); }
 
-  .post-card-kicker {
+  /* URL breadcrumb row — mimics a SERP breadcrumb */
+  .pc-url {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--ink-mute);
+    gap: 0.35rem;
+    font-size: 12px;
+    letter-spacing: 0.01em;
+    color: var(--serp-url, var(--accent));
+    line-height: 1;
   }
-  .post-card-tick {
+  .pc-dot {
     width: 7px;
     height: 7px;
-    background: var(--v);
+    border-radius: 50%;
+    background: var(--serp-url, var(--accent));
     flex: 0 0 auto;
   }
-  .post-card-desk { color: var(--v); font-weight: 500; }
-  .post-card-cat {
-    color: var(--ink-mute);
-    border-left: 1px solid var(--rule);
-    padding-left: 0.5rem;
-    letter-spacing: 0.1em;
-  }
 
-  .post-card-title {
-    font-family: var(--font-display);
-    font-size: 1.375rem;
-    font-weight: 600;
-    letter-spacing: -0.015em;
-    line-height: 1.2;
+  /* Title — SERP blue link style */
+  .pc-title {
+    font-family: var(--font-sans);
+    font-size: clamp(1.05rem, 2.2vw, 1.25rem);
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    line-height: 1.25;
     margin: 0;
-    color: var(--ink);
+    color: var(--serp-link, #6db3ff);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 3px;
   }
-  .post-card-link:hover .post-card-title { color: var(--accent); }
+  .post-card-link:hover .pc-title { text-decoration-color: var(--serp-link, #6db3ff); }
 
-  .post-card-desc {
+  /* Snippet — 2-line clamp */
+  .pc-snippet {
     color: var(--ink-mute);
-    font-family: var(--font-body);
-    font-size: 0.9375rem;
+    font-size: 0.9rem;
     line-height: 1.5;
     margin: 0;
-    max-width: 62ch;
-    overflow: hidden;
+    max-width: 65ch;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     line-clamp: 2;
+    overflow: hidden;
   }
-  .post-card-foot {
+
+  /* Meta foot */
+  .pc-foot {
     display: inline-flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 0.75rem;
-    font-family: var(--font-mono);
+    gap: 0.5rem 0.75rem;
     font-size: 11px;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
     color: var(--ink-mute);
+    margin-top: 0.1rem;
   }
-  .post-card-rt::before {
-    content: '·';
-    margin-right: 0.75rem;
-    color: var(--rule-strong, var(--rule));
-  }
-  /* Sibling deep-link to category — visually hidden, keyboard reachable. */
+  .pc-rt::before { content: '·'; margin-right: 0.75rem; }
+
+  /* Cat deep-link — visually hidden, keyboard reachable */
   .post-card-cat-link {
     position: absolute;
     inset: 0 0 auto auto;
@@ -135,11 +133,8 @@ const vert = postVertical(post)
     white-space: nowrap;
   }
   .post-card-cat-link:focus-visible {
-    width: auto;
-    height: auto;
-    clip: auto;
-    top: 1.125rem;
-    right: 0;
+    width: auto; height: auto; clip: auto;
+    top: 1.1rem; right: 0;
     padding: 0.125rem 0.5rem;
     background: var(--paper);
     border: 1px solid var(--accent);
